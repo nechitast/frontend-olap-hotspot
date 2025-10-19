@@ -656,22 +656,59 @@ function sortHeader(label: string, col: string) {
               >
                 Sebelumnya
               </button>
-
               <div className="flex gap-1 flex-wrap">
-                {[...Array(totalPages)].map((_, idx) => (
-                  <button
-                    key={idx + 1}
-                    onClick={() => setCurrentPage(idx + 1)}
-                    className={`px-3 py-1 rounded ${currentPage === idx + 1
-                      ? "bg-blue-600 text-white font-bold"
-                      : "bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
-              </div>
+                {(() => {
+                  const groupSize = 10;
+                  const currentGroup = Math.floor((currentPage - 1) / groupSize);
+                  const start = currentGroup * groupSize + 1;
+                  const end = Math.min(start + groupSize - 1, totalPages);
 
+                  if (start > 1) {
+                    return [
+                      <span key="start-ellipsis" className="px-3">...</span>,
+                      ...Array(end - start + 1).fill(0).map((_, i) => {
+                        const pageNum = start + i;
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`px-3 py-1 rounded ${
+                              currentPage === pageNum
+                                ? "bg-blue-600 text-white font-bold"
+                                : "bg-gray-200 text-gray-700"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })
+                    ];
+                  }
+
+                  const buttons = [];
+                  for (let i = start; i <= end; i++) {
+                    buttons.push(
+                      <button
+                        key={i}
+                        onClick={() => setCurrentPage(i)}
+                        className={`px-3 py-1 rounded ${
+                          currentPage === i
+                            ? "bg-blue-600 text-white font-bold"
+                            : "bg-gray-200 text-gray-700"
+                        }`}
+                      >
+                        {i}
+                      </button>
+                    );
+                  }
+                  if (end < totalPages) {
+                    buttons.push(
+                      <span key="end-ellipsis" className="px-3">...</span>
+                    );
+                  }
+                  return buttons;
+                })()}
+              </div>
               <button
                 onClick={() =>
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
